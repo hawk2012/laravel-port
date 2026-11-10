@@ -1,0 +1,122 @@
+# syntax=docker/dockerfile:1
+
+# Каждый сервис собирается из своей стадии одного Dockerfile:
+# runtime — php-fpm + код, web — nginx + статика, ssr — Node-рендерер.
+
+services:
+  app:
+    build:
+      context: .
+      target: runtime
+    image: laravel-port/app:local
+    restart: unless-stopped
+    env_file: .env.docker
+    volumes:
+      - app-storage:/var/www/html/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: [backend]
+
+  nginx:
+    build:
+      context: .
+      target: web
+    image: laravel-port/web:local
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on: [app]
+    networks: [backend]
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-flush-log-at-trx-commit=2
+      --slow-query-log=1
+      --long-query-time=0.5
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root-secret}
+    volumes:
+      - mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${DB_ROOT_PASSWORD:-root-secret}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [backend]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [backend]
+
+  # Отдельный воркер: генерации не конкурируют с веб-запросами за CPU и воркеры fpm.
+  queue:
+    image: laravel-port/app:local
+    restart: unless-stopped
+    env_file: .env.docker
+    command: ["php", "artisan", "queue:work", "redis", "--queue=generations,default", "--sleep=1", "--tries=3", "--max-time=3600"]
+    volumes:
+      - app-storage:/var/www/html/storage
+    depends_on:
+      app:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    networks: [backend]
+
+  scheduler:
+    image: laravel-port/app:local
+    restart: unless-stopped
+    env_file: .env.docker
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      - app-storage:/var/www/html/storage
+    depends_on:
+      app:
+        condition: service_started
+    networks: [backend]
+
+  # Inertia SSR: отдельный Node-процесс, отдаёт готовый HTML.
+  ssr:
+    build:
+      context: .
+      target: ssr
+    image: laravel-port/ssr:local
+    restart: unless-stopped
+    ports:
+      - "13714:13714"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:13714/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [backend]
+
+volumes:
+  mysql:
+  redis:
+  app-storage:
+
+networks:
+  backend:
+    driver: bridge
