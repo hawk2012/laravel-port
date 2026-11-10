@@ -10,8 +10,11 @@ use App\Services\Ai\Providers\StubProvider;
 /**
  * Резолвер AI-провайдера по имени из конфига.
  * Позволяет держать несколько провайдеров и переключать их без изменения сервисов.
+ *
+ * Не final: в тестах менеджер подменяется моком, чтобы проверить ветку
+ * обработки ошибок провайдера без реальных сетевых вызовов.
  */
-final class AiProviderManager
+class AiProviderManager
 {
     /** @var array<string, AiProvider> */
     private array $resolved = [];

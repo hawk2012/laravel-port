@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "hawk2012/laravel-port",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Kontur AI — платформа генерации визуального и текстового контента: Laravel 12 + Vue 3 + TypeScript + Inertia SSR.",
+    "keywords": ["laravel", "vue", "typescript", "inertia", "ai", "generation"],
     "license": "MIT",
     "require": {
         "php": "^8.2",

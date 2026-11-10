@@ -58,6 +58,9 @@ class Project extends Model
     {
         static::creating(function (self $project): void {
             $project->slug ??= Str::slug($project->name).'-'.Str::lower(Str::random(6));
+            // Дефолт схемы не попадает в атрибуты модели после create(),
+            // а ProjectResource читает $project->status->value.
+            $project->status ??= ProjectStatus::Active;
         });
     }
 

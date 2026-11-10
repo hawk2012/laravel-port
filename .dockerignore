@@ -1,0 +1,39 @@
+# Контекст сборки не должен содержать артефакты, которые собираются внутри образа.
+# Иначе `COPY . .` в стадии runtime перезаписывает vendor/ и public/build,
+# полученные на предыдущих стадиях.
+.git
+.github
+.gitignore
+.gitattributes
+.editorconfig
+.env
+.env.*
+!.env.example
+!.env.docker.example
+vendor
+node_modules
+public/build
+public/hot
+public/storage
+bootstrap/ssr
+bootstrap/cache/*.php
+storage/*.key
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/private/*
+storage/app/public/*
+database/*.sqlite
+database/*.sqlite-journal
+.phpunit.result.cache
+.phpunit.cache
+.phpstan.cache
+Makefile
+README.md
+docs
+tests
+*.md
+*.log
+.DS_Store
+Thumbs.db

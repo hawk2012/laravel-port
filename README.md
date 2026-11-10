@@ -1,5 +1,11 @@
 # Kontur AI — Laravel + Vue 3 платформа генерации контента
 
+[![CI](https://github.com/hawk2012/laravel-port/actions/workflows/ci.yml/badge.svg)](https://github.com/hawk2012/laravel-port/actions/workflows/ci.yml)
+[![PHP](https://img.shields.io/badge/PHP-8.3%2B-777bb3)](https://www.php.net/)
+[![Laravel](https://img.shields.io/badge/Laravel-12-ff2d20)](https://laravel.com/)
+[![Vue](https://img.shields.io/badge/Vue-3-42b883)](https://vuejs.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 Демонстрационный продукт для вакансии **Senior Fullstack (PHP/Laravel/Vue3/TypeScript)**:
 не CRUD-заготовка, а рабочий контур генерации изображений, видео, аудио и текста —
 с очередями, AI-провайдерами за общим контрактом, кредитами, идемпотентностью,
@@ -128,6 +134,8 @@ npm run typecheck                # vue-tsc
 создание генераций (кредиты, идемпотентность, лимиты, rate limit), полный happy-path
 через очередь, отказ провайдера с возвратом кредитов, отмена, отдача ассетов,
 агрегаты usage, Inertia-страницы и их пропсы, детерминизм stub-провайдера, enum'ы и DTO.
+
+Текущий прогон: **72 теста, 334 утверждения** (`php artisan test`, SQLite in-memory).
 
 ---
 

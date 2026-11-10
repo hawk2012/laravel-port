@@ -1,12 +1,14 @@
 import { onMounted, onUnmounted, ref } from 'vue';
 
 /**
- * Длительность анимации чисел на дашборде — с уважением к prefers-reduced-motion.
+ * Анимация числа от 0 к целевому значению.
+ *
+ * Стартовое значение равно target, чтобы серверный HTML содержал настоящее
+ * число (иначе SSR отдаёт нули и это ломает и SEO, и первый рендер).
+ * Анимация запускается только после монтирования, когда window уже доступен.
  */
 export function useCountUp(target: number, duration = 900) {
-    const display = ref(0);
-    const prefersReduced =
-        typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const display = ref(target);
 
     let frame = 0;
     let startedAt = 0;
@@ -26,12 +28,15 @@ export function useCountUp(target: number, duration = 900) {
     }
 
     onMounted(() => {
-        if (prefersReduced || duration === 0) {
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (prefersReduced || duration === 0 || target === 0) {
             display.value = target;
 
             return;
         }
 
+        display.value = 0;
         frame = requestAnimationFrame(step);
     });
 
