@@ -1,6 +1,5 @@
 # Kontur AI — Laravel + Vue 3 платформа генерации контента
 
-[![CI](https://github.com/hawk2012/laravel-port/actions/workflows/ci.yml/badge.svg)](https://github.com/hawk2012/laravel-port/actions/workflows/ci.yml)
 [![PHP](https://img.shields.io/badge/PHP-8.3%2B-777bb3)](https://www.php.net/)
 [![Laravel](https://img.shields.io/badge/Laravel-12-ff2d20)](https://laravel.com/)
 [![Vue](https://img.shields.io/badge/Vue-3-42b883)](https://vuejs.org/)
